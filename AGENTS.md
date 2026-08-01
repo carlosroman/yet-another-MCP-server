@@ -58,6 +58,16 @@ src/yams/
 - **Predictable over magical:** Reliable tooling over AI abstractions
 - **Boring technology:** Python, JSON, stdio, HTTP
 
+## Skills
+
+### git-commit
+
+This repo includes a `git-commit` skill for creating conventional commits.
+
+To use it:
+1. Stage your changes: `git add <files>`
+2. Run: `git commit` (the skill will auto-detect type/scope and commit)
+
 ## Non-Goals
 
 Not an agent framework, orchestration platform, workflow engine, hosted service, or IDE replacement. Just an MCP server.
