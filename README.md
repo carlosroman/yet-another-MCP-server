@@ -93,20 +93,20 @@ Example MCP client configuration:
 
 ## Included Tools
 
-Current built-in tools include:
+Planned tools (none implemented yet):
 
-| Tool         | Description               |
-| ------------ | ------------------------- |
-| `search`     | Search the web            |
-| `fetch`      | Fetch and parse web pages |
-| `shell`      | Execute shell commands    |
-| `read_file`  | Read files                |
-| `write_file` | Write files               |
-| `grep`       | Search project contents   |
-| `git_status` | Git status                |
-| `git_diff`   | Git diff                  |
-| `git_commit` | Create commits            |
-| `list_dir`   | List directories          |
+| Tool         | Description               | Status      |
+| ------------ | ------------------------- | ----------- |
+| `search`     | Search the web            | ⏳ Planned  |
+| `fetch`      | Fetch and parse web pages | ⏳ Planned  |
+| `shell`      | Execute shell commands    | ⏳ Planned  |
+| `read_file`  | Read files                | ⏳ Planned  |
+| `write_file` | Write files               | ⏳ Planned  |
+| `grep`       | Search project contents   | ⏳ Planned  |
+| `git_status` | Git status                | ⏳ Planned  |
+| `git_diff`   | Git diff                  | ⏳ Planned  |
+| `git_commit` | Create commits            | ⏳ Planned  |
+| `list_dir`   | List directories          | ⏳ Planned  |
 
 More tools will be added over time.
 
