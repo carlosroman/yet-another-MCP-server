@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import asyncio
+import logging
+
 from mcp.server import MCPServer
 
 from yams.config.settings import SearchSettings
 from yams.tools.search import create_search_tool
+
+logger = logging.getLogger(__name__)
 
 
 def init_server(settings: SearchSettings | None = None) -> MCPServer:
@@ -16,10 +21,9 @@ def init_server(settings: SearchSettings | None = None) -> MCPServer:
     return server
 
 
-import asyncio
-
-
 def run():
     settings = SearchSettings()
     server = init_server(settings)
+    logging.basicConfig(level=logging.INFO)
+    logger.info("YAMS server started")
     asyncio.run(server.run_stdio_async())
