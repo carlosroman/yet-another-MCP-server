@@ -26,4 +26,8 @@ def run():
     server = init_server(settings)
     logging.basicConfig(level=logging.INFO)
     logger.info("YAMS server started")
-    asyncio.run(server.run_stdio_async())
+
+    try:
+        asyncio.run(server.run_stdio_async())
+    except KeyboardInterrupt:
+        logger.info("Server shutting down...")
