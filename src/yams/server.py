@@ -16,7 +16,10 @@ def init_server(settings: SearchSettings | None = None) -> MCPServer:
     return server
 
 
+import asyncio
+
+
 def run():
     settings = SearchSettings()
     server = init_server(settings)
-    server.run_stdio_async()
+    asyncio.run(server.run_stdio_async())
