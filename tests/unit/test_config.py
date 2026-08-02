@@ -81,7 +81,10 @@ class TestSearchSettingsBraveKeyRequired:
 
 
 class TestSearchSettingsEnvFile:
-    def test_env_file_loading(self, tmp_path: Path):
+    def test_env_file_loading(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.delenv("BRAVE_API_KEY", raising=False)
+        monkeypatch.delenv("YAMS_SEARCH_COUNT", raising=False)
+        monkeypatch.delenv("YAMS_SEARCH_PROVIDER", raising=False)
         env_file = tmp_path / ".env"
         env_file.write_text(
             "BRAVE_API_KEY=file-key\nYAMS_SEARCH_COUNT=5\nYAMS_SEARCH_PROVIDER=brave\n"
