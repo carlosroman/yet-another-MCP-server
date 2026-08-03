@@ -25,7 +25,7 @@ class TestInitServer:
         server = init_server(settings)
         tools = await server.list_tools()
         tool_names = [t.name for t in tools]
-        assert "search" in tool_names
+        assert "websearch" in tool_names
 
     def test_default_settings(self):
         with patch.dict("os.environ", {"YAMS_SEARCH_PROVIDER": "searxng"}):

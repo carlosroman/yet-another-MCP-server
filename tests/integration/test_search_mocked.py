@@ -33,7 +33,7 @@ class TestSearchMocked:
         server = init_server(settings)
 
         with patch("httpx.AsyncClient", return_value=httpx.AsyncClient(transport=transport)):
-            result = await server.call_tool("search", {"query": "google"})
+            result = await server.call_tool("websearch", {"query": "google"})
 
         parsed = json.loads(result.content[0].text)
         assert parsed["query"] == "google"

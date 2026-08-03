@@ -22,7 +22,7 @@ class TestSearchRealAPI:
         )
         server = init_server(settings)
 
-        result = await server.call_tool("search", {"query": "google"})
+        result = await server.call_tool("websearch", {"query": "google"})
         parsed = json.loads(result.content[0].text)
 
         assert parsed["query"] == "google"

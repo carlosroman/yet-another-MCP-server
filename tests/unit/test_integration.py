@@ -47,7 +47,7 @@ class TestIntegrationSearchFlow:
             server = init_server(settings)
             await server.list_tools()
 
-            result = await server.call_tool("search", {"query": "python mcp"})
+            result = await server.call_tool("websearch", {"query": "python mcp"})
 
         parsed = json.loads(result.content[0].text)
         assert parsed["query"] == "python mcp"
@@ -68,7 +68,7 @@ class TestIntegrationSearchFlow:
             server = init_server(settings)
 
             with pytest.raises(Exception, match="API failure"):
-                await server.call_tool("search", {"query": "test"})
+                await server.call_tool("websearch", {"query": "test"})
 
     def test_provider_switching(self):
         brave_settings = SearchSettings(provider="brave", brave_api_key="key")
