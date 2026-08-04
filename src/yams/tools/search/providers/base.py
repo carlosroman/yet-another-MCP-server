@@ -36,6 +36,10 @@ class SearchProvider(ABC):
 
 def get_search_provider(settings: SearchSettings) -> SearchProvider:
     if settings.provider == "brave":
+        if settings.mode == "brave_llm_context":
+            from yams.tools.search.providers.brave_llm_context import BraveLLMContextProvider
+
+            return BraveLLMContextProvider(settings)
         from yams.tools.search.providers.brave import BraveSearchProvider
 
         return BraveSearchProvider(settings)

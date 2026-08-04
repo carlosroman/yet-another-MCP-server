@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 
 from mcp.server import MCPServer
 from mcp.types import ToolAnnotations
@@ -19,7 +19,8 @@ def init_server(settings: SearchSettings | None = None) -> MCPServer:
 
     server = MCPServer("yams")
     search_fn = create_search_tool(settings)
-    current_year = datetime.now().year
+    current_year = datetime.now(tz=UTC).year
+    mode_label = "brave_llm_context (Brave LLM Context)" if settings.mode == "brave_llm_context" else "default (Brave Web Search)"
     server.tool(
         name="websearch",
         title="Web Search",
@@ -33,7 +34,8 @@ def init_server(settings: SearchSettings | None = None) -> MCPServer:
             f"Search the public web for information. "
             f"Supports web, news, image, and video search. "
             f"Use this for current information beyond knowledge cutoff. "
-            f"The current year is {current_year}. Use this year when searching for recent information or current events."
+            f"The current year is {current_year}. Use this year when searching for recent information or current events. "
+            f"Mode: {mode_label}."
         ))(search_fn)
     return server
 
