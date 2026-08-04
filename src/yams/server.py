@@ -35,7 +35,8 @@ def init_server(settings: SearchSettings | None = None) -> MCPServer:
             f"Supports web, news, image, and video search. "
             f"Use this for current information beyond knowledge cutoff. "
             f"The current year is {current_year}. Use this year when searching for recent information or current events. "
-            f"Mode: {mode_label}."
+            f"Mode: 'default' uses standard Brave Web Search (titles, URLs, snippets). "
+            f"'brave_llm_context' uses Brave's LLM Context API for enhanced context with more detailed snippets - better for complex research queries."
         ))(search_fn)
     return server
 
