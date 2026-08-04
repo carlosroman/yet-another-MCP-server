@@ -22,9 +22,7 @@ def create_search_tool(settings: SearchSettings):
 
         effective_mode = mode or settings.mode
         if effective_mode != settings.mode:
-            from dataclasses import replace
-
-            override_settings = replace(settings, mode=effective_mode)
+            override_settings = settings.model_copy(update={"mode": effective_mode})
             effective_provider = get_search_provider(override_settings)
         else:
             effective_provider = provider
