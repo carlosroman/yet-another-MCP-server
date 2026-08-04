@@ -14,9 +14,12 @@ export BRAVE_API_KEY="your-brave-api-key-here"
 
 # Optional configuration
 export YAMS_SEARCH_PROVIDER="brave"        # "brave" or "searxng" (default: brave)
+export YAMS_SEARCH_MODE="default"          # "default" or "brave_llm_context" (default: default)
 export YAMS_SEARCH_COUNT=10                # Results per query (1-20, default: 10)
 export YAMS_SEARCH_COUNTRY="us"            # Country code (default: us)
 export YAMS_SEARCH_LANGUAGE="en"           # Language code (default: en)
+export YAMS_SEARCH_LLM_CONTEXT_COUNT=20    # LLM Context results (default: 20)
+export YAMS_SEARCH_LLM_CONTEXT_MAX_TOKENS=8192  # LLM Context max tokens (default: 8192)
 ```
 
 ### `.env` File Example
@@ -24,9 +27,12 @@ export YAMS_SEARCH_LANGUAGE="en"           # Language code (default: en)
 ```env
 BRAVE_API_KEY=your-brave-api-key-here
 YAMS_SEARCH_PROVIDER=brave
+YAMS_SEARCH_MODE=default
 YAMS_SEARCH_COUNT=10
 YAMS_SEARCH_COUNTRY=us
 YAMS_SEARCH_LANGUAGE=en
+YAMS_SEARCH_LLM_CONTEXT_COUNT=20
+YAMS_SEARCH_LLM_CONTEXT_MAX_TOKENS=8192
 ```
 
 ## Usage
@@ -38,8 +44,11 @@ YAMS_SEARCH_LANGUAGE=en
 | `query` | string | Yes | - | Search query string |
 | `count` | integer | No | 10 | Number of results (1-20) |
 | `search_type` | string | No | "web" | Type: "web", "news", "images", or "videos" |
+| `mode` | string | No | config value | Override mode: "default" or "brave_llm_context" |
 
 ### Example Request
+
+#### Default Mode (Brave Web Search)
 
 ```json
 {
@@ -48,6 +57,20 @@ YAMS_SEARCH_LANGUAGE=en
     "query": "python machine learning",
     "count": 5,
     "search_type": "web"
+  }
+}
+```
+
+#### LLM Context Mode (Runtime Override)
+
+```json
+{
+  "name": "search",
+  "arguments": {
+    "query": "python machine learning",
+    "count": 30,
+    "search_type": "web",
+    "mode": "brave_llm_context"
   }
 }
 ```
@@ -140,6 +163,24 @@ async def test_search():
 asyncio.run(test_search())
 ```
 
+## Search Modes
+
+### Default Mode
+
+Uses the Brave Web Search API (`/api/v1/search`). Supports all search types:
+- `web` - Web search results
+- `news` - News articles
+- `images` - Image search
+- `videos` - Video search
+
+### Brave LLM Context Mode
+
+Uses the Brave LLM Context API (`/api/v1/llm/context`). Designed for LLM grounding:
+- Returns context snippets from search results
+- Only supports `web` search type (raises error for news/images/videos)
+- Configurable `count` (default: 20) and `max_tokens` (default: 8192)
+- Snippets are joined with double newlines for better context
+
 ## Error Handling
 
 The tool raises errors for:
@@ -148,6 +189,7 @@ The tool raises errors for:
 - **Invalid API key**: HTTP 401 from Brave API
 - **Rate limited**: HTTP 429 from Brave API
 - **Network errors**: Connection timeouts or failures
+- **Unsupported search type**: LLM Context mode only supports `web` search
 
 ## Getting a Brave API Key
 
