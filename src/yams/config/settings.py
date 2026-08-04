@@ -11,6 +11,7 @@ load_dotenv()
 
 class SearchSettings(BaseSettings):
     provider: Literal["brave", "searxng"] = "brave"
+    mode: Literal["default", "brave_llm_context"] = "default"
     brave_api_key: str = Field(
         default="",
         validation_alias=AliasChoices("BRAVE_API_KEY", "brave_api_key"),
@@ -22,6 +23,8 @@ class SearchSettings(BaseSettings):
     count: int = Field(default=10, ge=1, le=20)
     country: str = "us"
     language: str = "en"
+    llm_context_count: int = Field(default=20, ge=1, le=50)
+    llm_context_max_tokens: int = Field(default=8192, ge=1, le=32768)
 
     @model_validator(mode="after")
     def check_brave_key_required(self) -> SearchSettings:
