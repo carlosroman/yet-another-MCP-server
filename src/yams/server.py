@@ -20,7 +20,6 @@ def init_server(settings: SearchSettings | None = None) -> MCPServer:
     server = MCPServer("yams")
     search_fn = create_search_tool(settings)
     current_year = datetime.now(tz=UTC).year
-    mode_label = "brave_llm_context (Brave LLM Context)" if settings.mode == "brave_llm_context" else "default (Brave Web Search)"
     server.tool(
         name="websearch",
         title="Web Search",
@@ -32,9 +31,9 @@ def init_server(settings: SearchSettings | None = None) -> MCPServer:
         ),
         description=(
             f"Search the public web for information. "
-            f"Supports web, news, image, and video search. "
             f"Use this for current information beyond knowledge cutoff. "
             f"The current year is {current_year}. Use this year when searching for recent information or current events. "
+            f"Search types: 'web' for general info, 'news' for recent events/sports/results, 'images' for photos, 'videos' for video content. "
             f"Mode: 'default' uses standard Brave Web Search (titles, URLs, snippets). "
             f"'brave_llm_context' uses Brave's LLM Context API for enhanced context with more detailed snippets - better for complex research queries."
         ))(search_fn)
