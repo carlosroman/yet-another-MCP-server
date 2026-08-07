@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <item id="1">
+    <name>Alpha</name>
+    <value>100</value>
+  </item>
+  <item id="2">
+    <name>Beta</name>
+    <value>200</value>
+  </item>
+</root>
