@@ -1,0 +1,9 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "items": [
+    {"id": 1, "value": "alpha"},
+    {"id": 2, "value": "beta"},
+    {"id": 3, "value": "gamma"}
+  ]
+}

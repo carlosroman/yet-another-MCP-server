@@ -8,17 +8,21 @@ from mcp.server import MCPServer
 from mcp.types import ToolAnnotations
 
 from yams.config.settings import SearchSettings
+from yams.tools.fetch import FetchSettings, create_fetch_tool
 from yams.tools.search import create_search_tool
 
 logger = logging.getLogger(__name__)
 
 
-def init_server(settings: SearchSettings | None = None) -> MCPServer:
-    if settings is None:
-        settings = SearchSettings()
+def init_server(
+    search_settings: SearchSettings | None = None,
+    fetch_settings: FetchSettings | None = None,
+) -> MCPServer:
+    if search_settings is None:
+        search_settings = SearchSettings()
 
     server = MCPServer("yams")
-    search_fn = create_search_tool(settings)
+    search_fn = create_search_tool(search_settings)
     current_year = datetime.now(tz=UTC).year
     server.tool(
         name="websearch",
@@ -37,12 +41,32 @@ def init_server(settings: SearchSettings | None = None) -> MCPServer:
             f"Mode: 'default' uses standard Brave Web Search (titles, URLs, snippets). "
             f"'brave_llm_context' uses Brave's LLM Context API for enhanced context with more detailed snippets - better for complex research queries."
         ))(search_fn)
+
+    fetch_fn = create_fetch_tool(fetch_settings or FetchSettings())
+    server.tool(
+        name="webfetch",
+        title="Fetch Web Page",
+        annotations=ToolAnnotations(
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+        description=(
+            f"Fetch and parse a web page, returning content in markdown format. "
+            f"Use this to read the full content of web pages found via search or provided by the user. "
+            f"Supports HTML, JSON, XML, and PDF content types. "
+            f"Trafilatura extracts main content from HTML pages, "
+            f"MarkItDown handles PDF conversion. "
+            f"The current year is {current_year}."
+        ))(fetch_fn)
+
     return server
 
 
 def run():
-    settings = SearchSettings()
-    server = init_server(settings)
+    search_settings = SearchSettings()
+    server = init_server(search_settings)
     logging.basicConfig(level=logging.INFO)
     logger.info("YAMS server started")
 
