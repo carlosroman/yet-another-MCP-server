@@ -25,9 +25,7 @@ class TestSearchMocked:
             }
         }
 
-        transport = httpx.MockTransport(
-            lambda request: httpx.Response(200, json=mock_body)
-        )
+        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=mock_body))
 
         settings = SearchSettings(provider="brave", brave_api_key="test-key")
         server = init_server(settings)
@@ -55,9 +53,7 @@ class TestSearchMocked:
             }
         }
 
-        transport = httpx.MockTransport(
-            lambda request: httpx.Response(200, json=mock_body)
-        )
+        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=mock_body))
 
         settings = SearchSettings(
             provider="brave",
@@ -89,9 +85,7 @@ class TestSearchMocked:
             }
         }
 
-        transport = httpx.MockTransport(
-            lambda request: httpx.Response(200, json=mock_body)
-        )
+        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=mock_body))
 
         settings = SearchSettings(
             provider="brave",

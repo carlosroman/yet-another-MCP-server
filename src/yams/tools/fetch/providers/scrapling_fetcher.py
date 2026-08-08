@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from urllib.parse import urlparse
 
-import httpx
+from scrapling.fetchers import AsyncFetcher
 
 from yams.tools.fetch.providers.base import Fetcher, FetchResponse
 from yams.tools.fetch.providers.converters.markitdown import MarkItDownConverter
@@ -10,37 +10,44 @@ from yams.tools.fetch.providers.converters.trafilatura import TrafilaturaConvert
 from yams.tools.fetch.settings import FetchSettings
 
 
-class HttpxFetcher(Fetcher):
+class ScraplingFetcher(Fetcher):
     def __init__(self, settings: FetchSettings):
         self._settings = settings
         self._trafilatura = TrafilaturaConverter()
         self._markitdown = MarkItDownConverter()
 
-    async def fetch(self, url: str, user_agent: str | None = None) -> FetchResponse:
+    async def fetch(
+        self, url: str, user_agent: str | None = None, stealthy_headers: bool | None = None
+    ) -> FetchResponse:
         _validate_url(url)
 
         effective_user_agent = user_agent or self._settings.user_agent
+        effective_stealthy = (
+            stealthy_headers if stealthy_headers is not None else self._settings.stealthy_headers
+        )
 
-        async with httpx.AsyncClient(
-            timeout=httpx.Timeout(self._settings.timeout),
-            follow_redirects=self._settings.follow_redirects,
-            headers={"User-Agent": effective_user_agent},
-        ) as client:
-            try:
-                resp = await client.get(url)
-            except httpx.TimeoutException:
-                raise RuntimeError(f"Fetch timed out after {self._settings.timeout}s: {url}")
-            except httpx.HTTPError as e:
-                raise RuntimeError(f"Failed to fetch {url}: {e}")
+        headers = {"User-Agent": effective_user_agent}
 
-        if resp.status_code >= 400:
-            raise RuntimeError(f"HTTP {resp.status_code} fetching {url}")
+        try:
+            resp = await AsyncFetcher.get(
+                url,
+                timeout=self._settings.timeout,
+                follow_redirects=self._settings.follow_redirects,
+                headers=headers,
+                stealthy_headers=effective_stealthy,
+                impersonate=self._settings.impersonate,
+            )
+        except (OSError, ValueError) as e:
+            raise RuntimeError(f"Failed to fetch {url}: {e}")
+
+        if resp.status >= 400:
+            raise RuntimeError(f"HTTP {resp.status} fetching {url}")
 
         final_url = str(resp.url)
         content_type = resp.headers.get("content-type", "application/octet-stream")
-        raw_body = resp.content
+        raw_body = resp.body
 
-        size = len(raw_body)
+        size = len(raw_body) if isinstance(raw_body, bytes) else len(raw_body.encode())
         if size > self._settings.max_size:
             raise RuntimeError(f"Content size {size} exceeds limit {self._settings.max_size}")
 
@@ -51,7 +58,7 @@ class HttpxFetcher(Fetcher):
             url=final_url,
             content=converted,
             content_type=content_type,
-            status_code=resp.status_code,
+            status_code=resp.status,
             title=title,
         )
 

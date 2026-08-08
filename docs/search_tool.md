@@ -118,12 +118,14 @@ import os
 from yams.config.settings import SearchSettings
 from yams.tools.search import create_search_tool
 
+
 async def main():
     settings = SearchSettings()
     search_fn = create_search_tool(settings)
-    
+
     result = await search_fn(query="python programming", count=3)
     print(result)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -143,22 +145,20 @@ import asyncio
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
+
 async def test_search():
-    server_params = StdioServerParameters(
-        command="uv",
-        args=["run", "yams"]
-    )
-    
+    server_params = StdioServerParameters(command="uv", args=["run", "yams"])
+
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
-            
+
             # Call search tool
             result = await session.call_tool(
-                "search",
-                arguments={"query": "hello world", "count": 3}
+                "search", arguments={"query": "hello world", "count": 3}
             )
             print(result)
+
 
 asyncio.run(test_search())
 ```

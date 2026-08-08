@@ -20,7 +20,11 @@ class TrafilaturaConverter(ContentConverter):
         elif "xml" in ct:
             return _format_xml(content)
 
-        return _extract_html(content) if isinstance(content, str) else content.decode("utf-8", errors="replace")
+        return (
+            _extract_html(content)
+            if isinstance(content, str)
+            else content.decode("utf-8", errors="replace")
+        )
 
 
 def _extract_html(content: bytes | str) -> str:
