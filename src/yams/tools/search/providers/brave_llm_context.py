@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-import httpx
+from curl_cffi import requests
 
 from yams.config.settings import SearchSettings
 from yams.tools.search.providers.base import (
@@ -39,7 +39,7 @@ class BraveLLMContextProvider(SearchProvider):
             "search_lang": self._language,
         }
 
-        async with httpx.AsyncClient() as client:
+        async with requests.AsyncSession() as client:
             response = await client.get(
                 BRAVE_LLM_CONTEXT_URL,
                 params=params,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-import httpx
+from curl_cffi import requests
 
 from yams.config.settings import SearchSettings
 from yams.tools.search.providers.base import (
@@ -37,7 +37,7 @@ class SearxngSearchProvider(SearchProvider):
 
         url = f"{self._base_url.rstrip('/')}/search"
 
-        async with httpx.AsyncClient() as client:
+        async with requests.AsyncSession() as client:
             response = await client.get(
                 url,
                 params=params,
