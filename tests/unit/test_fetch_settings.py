@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from unittest.mock import patch
 
+import pytest
+
 from yams.tools.fetch.settings import FetchSettings
 
 
@@ -16,7 +18,8 @@ class TestFetchSettingsDefaults:
     def test_default_follow_redirects(self):
         assert FetchSettings().follow_redirects is True
 
-    def test_default_user_agent(self):
+    def test_default_user_agent(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.delenv("YAMS_FETCH_USER_AGENT", raising=False)
         assert FetchSettings().user_agent == "YAMS/1.0"
 
 
