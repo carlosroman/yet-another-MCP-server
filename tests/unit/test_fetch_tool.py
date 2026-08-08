@@ -18,7 +18,7 @@ class TestFetchToolValidation:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock()
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             with pytest.raises(ValueError, match="must not be empty"):
                 await tool(url="")
@@ -28,7 +28,7 @@ class TestFetchToolValidation:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock()
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             with pytest.raises(ValueError, match="must not be empty"):
                 await tool(url="   ")
@@ -47,7 +47,7 @@ class TestFetchToolSuccess:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock(return_value=mock_resp)
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             result = await tool(url="https://example.com")
 
@@ -67,7 +67,7 @@ class TestFetchToolSuccess:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock(return_value=mock_resp)
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             result = await tool(url="https://example.com")
 
@@ -85,7 +85,7 @@ class TestFetchToolSuccess:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock(return_value=mock_resp)
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             result = await tool(url="https://example.com", format="text")
 
@@ -104,7 +104,7 @@ class TestFetchToolSuccess:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock(return_value=mock_resp)
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             result = await tool(url="https://example.com", format="html")
 
@@ -118,7 +118,7 @@ class TestFetchToolErrors:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock(side_effect=RuntimeError("Connection failed"))
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             with pytest.raises(RuntimeError, match="Connection failed"):
                 await tool(url="https://example.com")
@@ -128,7 +128,7 @@ class TestFetchToolErrors:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock(side_effect=ValueError("Invalid URL"))
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             with pytest.raises(ValueError, match="Invalid URL"):
                 await tool(url="https://example.com")
@@ -148,7 +148,7 @@ class TestFetchToolResponse:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock(return_value=mock_resp)
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             result = await tool(url="https://example.com")
 
@@ -171,9 +171,10 @@ class TestFetchToolResponse:
         mock_provider = MagicMock()
         mock_provider.fetch = AsyncMock(return_value=mock_resp)
 
-        with patch("yams.tools.fetch.tool.HttpxFetcher", return_value=mock_provider):
+        with patch("yams.tools.fetch.tool.ScraplingFetcher", return_value=mock_provider):
             tool = create_fetch_tool(FetchSettings())
             result = await tool(url="https://example.com")
 
         from datetime import datetime
+
         datetime.fromisoformat(result["extracted_at"])

@@ -4,7 +4,7 @@ import re
 from typing import Literal
 
 from yams.tools.fetch.providers.base import FetchResponse
-from yams.tools.fetch.providers.httpx_fetcher import HttpxFetcher
+from yams.tools.fetch.providers.scrapling_fetcher import ScraplingFetcher
 from yams.tools.fetch.settings import FetchSettings
 
 
@@ -12,17 +12,20 @@ def create_fetch_tool(settings: FetchSettings | None = None):
     if settings is None:
         settings = FetchSettings()
 
-    provider = HttpxFetcher(settings)
+    provider = ScraplingFetcher(settings)
 
     async def webfetch(
         url: str,
         format: Literal["markdown", "text", "html"] = "markdown",
         user_agent: str | None = None,
+        stealthy_headers: bool | None = None,
     ) -> dict:
         if not url or not url.strip():
             raise ValueError("URL must not be empty")
 
-        response = await provider.fetch(url, user_agent=user_agent)
+        response = await provider.fetch(
+            url, user_agent=user_agent, stealthy_headers=stealthy_headers
+        )
         content = _format_content(response, format)
 
         return {

@@ -40,7 +40,8 @@ def init_server(
             f"Search types: 'web' for general info, 'news' for recent events/sports/results, 'images' for photos, 'videos' for video content. "
             f"Mode: 'default' uses standard Brave Web Search (titles, URLs, snippets). "
             f"'brave_llm_context' uses Brave's LLM Context API for enhanced context with more detailed snippets - better for complex research queries."
-        ))(search_fn)
+        ),
+    )(search_fn)
 
     fetch_fn = create_fetch_tool(fetch_settings or FetchSettings())
     server.tool(
@@ -56,7 +57,8 @@ def init_server(
             "Fetch content from an HTTP or HTTPS URL and return it as text, markdown, or HTML. Markdown is the default. "
             "Use this to read the full content of web pages found via search or provided by the user. "
             "Supports HTML, JSON, XML, and PDF content types. "
-        ))(fetch_fn)
+        ),
+    )(fetch_fn)
 
     return server
 
