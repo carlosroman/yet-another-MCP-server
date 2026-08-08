@@ -16,13 +16,15 @@ class HttpxFetcher(Fetcher):
         self._trafilatura = TrafilaturaConverter()
         self._markitdown = MarkItDownConverter()
 
-    async def fetch(self, url: str) -> FetchResponse:
+    async def fetch(self, url: str, user_agent: str | None = None) -> FetchResponse:
         _validate_url(url)
+
+        effective_user_agent = user_agent or self._settings.user_agent
 
         async with httpx.AsyncClient(
             timeout=httpx.Timeout(self._settings.timeout),
             follow_redirects=self._settings.follow_redirects,
-            headers={"User-Agent": self._settings.user_agent},
+            headers={"User-Agent": effective_user_agent},
         ) as client:
             try:
                 resp = await client.get(url)
@@ -40,9 +42,7 @@ class HttpxFetcher(Fetcher):
 
         size = len(raw_body)
         if size > self._settings.max_size:
-            raise RuntimeError(
-                f"Content size {size} exceeds limit {self._settings.max_size}"
-            )
+            raise RuntimeError(f"Content size {size} exceeds limit {self._settings.max_size}")
 
         title = ""
         converted = self._convert(raw_body, content_type)
