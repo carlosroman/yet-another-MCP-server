@@ -17,11 +17,12 @@ def create_fetch_tool(settings: FetchSettings | None = None):
     async def webfetch(
         url: str,
         format: Literal["markdown", "text", "html"] = "markdown",
+        user_agent: str | None = None,
     ) -> dict:
         if not url or not url.strip():
             raise ValueError("URL must not be empty")
 
-        response = await provider.fetch(url)
+        response = await provider.fetch(url, user_agent=user_agent)
         content = _format_content(response, format)
 
         return {
