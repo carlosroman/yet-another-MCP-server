@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import MagicMock, patch
 
-import httpx
 import pytest
 
 from yams.config.settings import SearchSettings
@@ -14,6 +13,14 @@ from yams.tools.search.providers.base import (
 )
 from yams.tools.search.providers.brave import BraveSearchProvider
 from yams.tools.search.providers.brave_llm_context import BraveLLMContextProvider
+
+
+def create_mock_response(status_code: int, json_data: dict | None = None, text: str = ""):
+    mock_resp = MagicMock()
+    mock_resp.status_code = status_code
+    mock_resp.json.return_value = json_data or {}
+    mock_resp.text = text
+    return mock_resp
 
 
 class TestSearchResult:
@@ -102,16 +109,12 @@ class TestBraveSearchProvider:
             }
         }
 
-        async def mock_transport(request: httpx.Request):
-            return httpx.Response(200, json=mock_body)
+        mock_response = create_mock_response(200, mock_body)
 
-        with patch("httpx.AsyncClient", return_value=AsyncMock().__aenter__.return_value):
-            pass
+        async def mock_get(*args, **kwargs):
+            return mock_response
 
-        with patch.object(httpx.AsyncClient, "get", new_callable=AsyncMock) as mock_get:
-            mock_get.return_value = httpx.Response(200, json=mock_body)
-            mock_get.return_value.status_code = 200
-
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             response = await provider.search("python async", count=5)
 
         assert response.query == "python async"
@@ -124,33 +127,39 @@ class TestBraveSearchProvider:
 
     @pytest.mark.asyncio
     async def test_api_key_error(self, provider):
+        mock_response = create_mock_response(401, text="Unauthorized")
+
         async def mock_get(*args, **kwargs):
-            return httpx.Response(401, text="Unauthorized")
+            return mock_response
 
         with (
-            patch.object(httpx.AsyncClient, "get", new=mock_get),
+            patch("curl_cffi.requests.AsyncSession.get", new=mock_get),
             pytest.raises(RuntimeError, match="Invalid API key"),
         ):
             await provider.search("test")
 
     @pytest.mark.asyncio
     async def test_rate_limit_error(self, provider):
+        mock_response = create_mock_response(429, text="Rate limited")
+
         async def mock_get(*args, **kwargs):
-            return httpx.Response(429, text="Rate limited")
+            return mock_response
 
         with (
-            patch.object(httpx.AsyncClient, "get", new=mock_get),
+            patch("curl_cffi.requests.AsyncSession.get", new=mock_get),
             pytest.raises(RuntimeError, match="Rate limit"),
         ):
             await provider.search("test")
 
     @pytest.mark.asyncio
     async def test_server_error(self, provider):
+        mock_response = create_mock_response(500, text="Internal Error")
+
         async def mock_get(*args, **kwargs):
-            return httpx.Response(500, text="Internal Error")
+            return mock_response
 
         with (
-            patch.object(httpx.AsyncClient, "get", new=mock_get),
+            patch("curl_cffi.requests.AsyncSession.get", new=mock_get),
             pytest.raises(RuntimeError, match="Search API error"),
         ):
             await provider.search("test")
@@ -158,11 +167,12 @@ class TestBraveSearchProvider:
     @pytest.mark.asyncio
     async def test_empty_results(self, provider):
         mock_body = {"web": {"results": []}}
+        mock_response = create_mock_response(200, mock_body)
 
         async def mock_get(*args, **kwargs):
-            return httpx.Response(200, json=mock_body)
+            return mock_response
 
-        with patch.object(httpx.AsyncClient, "get", new=mock_get):
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             response = await provider.search("no results")
             assert response.total_results == 0
             assert response.results == []
@@ -178,11 +188,12 @@ class TestBraveSearchProvider:
                 }
             ]
         }
+        mock_response = create_mock_response(200, mock_body)
 
         async def mock_get(*args, **kwargs):
-            return httpx.Response(200, json=mock_body)
+            return mock_response
 
-        with patch.object(httpx.AsyncClient, "get", new=mock_get):
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             response = await provider.search("news", search_type="news")
             assert response.search_type == "news"
             assert len(response.results) == 1
@@ -199,11 +210,12 @@ class TestBraveSearchProvider:
                 }
             ]
         }
+        mock_response = create_mock_response(200, mock_body)
 
         async def mock_get(*args, **kwargs):
-            return httpx.Response(200, json=mock_body)
+            return mock_response
 
-        with patch.object(httpx.AsyncClient, "get", new=mock_get):
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             response = await provider.search("images", search_type="images")
             assert response.search_type == "images"
             assert len(response.results) == 1
@@ -219,11 +231,12 @@ class TestBraveSearchProvider:
                 }
             ]
         }
+        mock_response = create_mock_response(200, mock_body)
 
         async def mock_get(*args, **kwargs):
-            return httpx.Response(200, json=mock_body)
+            return mock_response
 
-        with patch.object(httpx.AsyncClient, "get", new=mock_get):
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             response = await provider.search("videos", search_type="videos")
             assert response.search_type == "videos"
             assert len(response.results) == 1
@@ -276,10 +289,12 @@ class TestBraveLLMContextProvider:
             }
         }
 
-        async def mock_get(*args, **kwargs):
-            return httpx.Response(200, json=mock_body)
+        mock_response = create_mock_response(200, mock_body)
 
-        with patch.object(httpx.AsyncClient, "get", new=mock_get):
+        async def mock_get(*args, **kwargs):
+            return mock_response
+
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             response = await provider.search("python async", count=5)
 
         assert response.query == "python async"
@@ -299,33 +314,39 @@ class TestBraveLLMContextProvider:
 
     @pytest.mark.asyncio
     async def test_api_key_error(self, provider):
+        mock_response = create_mock_response(401, text="Unauthorized")
+
         async def mock_get(*args, **kwargs):
-            return httpx.Response(401, text="Unauthorized")
+            return mock_response
 
         with (
-            patch.object(httpx.AsyncClient, "get", new=mock_get),
+            patch("curl_cffi.requests.AsyncSession.get", new=mock_get),
             pytest.raises(RuntimeError, match="Invalid API key"),
         ):
             await provider.search("test")
 
     @pytest.mark.asyncio
     async def test_rate_limit_error(self, provider):
+        mock_response = create_mock_response(429, text="Rate limited")
+
         async def mock_get(*args, **kwargs):
-            return httpx.Response(429, text="Rate limited")
+            return mock_response
 
         with (
-            patch.object(httpx.AsyncClient, "get", new=mock_get),
+            patch("curl_cffi.requests.AsyncSession.get", new=mock_get),
             pytest.raises(RuntimeError, match="Rate limit"),
         ):
             await provider.search("test")
 
     @pytest.mark.asyncio
     async def test_server_error(self, provider):
+        mock_response = create_mock_response(500, text="Internal Error")
+
         async def mock_get(*args, **kwargs):
-            return httpx.Response(500, text="Internal Error")
+            return mock_response
 
         with (
-            patch.object(httpx.AsyncClient, "get", new=mock_get),
+            patch("curl_cffi.requests.AsyncSession.get", new=mock_get),
             pytest.raises(RuntimeError, match="Search API error"),
         ):
             await provider.search("test")
@@ -333,11 +354,12 @@ class TestBraveLLMContextProvider:
     @pytest.mark.asyncio
     async def test_empty_results(self, provider):
         mock_body = {"grounding": {"generic": []}}
+        mock_response = create_mock_response(200, mock_body)
 
         async def mock_get(*args, **kwargs):
-            return httpx.Response(200, json=mock_body)
+            return mock_response
 
-        with patch.object(httpx.AsyncClient, "get", new=mock_get):
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             response = await provider.search("no results")
             assert response.total_results == 0
             assert response.results == []

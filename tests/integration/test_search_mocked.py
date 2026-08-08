@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 import json
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-import httpx
 import pytest
 
 from yams.config.settings import SearchSettings
 from yams.server import init_server
+
+
+def create_mock_response(status_code: int, json_data: dict | None = None, text: str = ""):
+    mock_resp = MagicMock()
+    mock_resp.status_code = status_code
+    mock_resp.json.return_value = json_data or {}
+    mock_resp.text = text
+    return mock_resp
 
 
 class TestSearchMocked:
@@ -25,12 +32,15 @@ class TestSearchMocked:
             }
         }
 
-        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=mock_body))
+        mock_response = create_mock_response(200, mock_body)
+
+        async def mock_get(*args, **kwargs):
+            return mock_response
 
         settings = SearchSettings(provider="brave", brave_api_key="test-key")
         server = init_server(settings)
 
-        with patch("httpx.AsyncClient", return_value=httpx.AsyncClient(transport=transport)):
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             result = await server.call_tool("websearch", {"query": "google"})
 
         parsed = json.loads(result.content[0].text)
@@ -53,7 +63,10 @@ class TestSearchMocked:
             }
         }
 
-        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=mock_body))
+        mock_response = create_mock_response(200, mock_body)
+
+        async def mock_get(*args, **kwargs):
+            return mock_response
 
         settings = SearchSettings(
             provider="brave",
@@ -62,7 +75,7 @@ class TestSearchMocked:
         )
         server = init_server(settings)
 
-        with patch("httpx.AsyncClient", return_value=httpx.AsyncClient(transport=transport)):
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             result = await server.call_tool("websearch", {"query": "python async"})
 
         parsed = json.loads(result.content[0].text)
@@ -85,7 +98,10 @@ class TestSearchMocked:
             }
         }
 
-        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=mock_body))
+        mock_response = create_mock_response(200, mock_body)
+
+        async def mock_get(*args, **kwargs):
+            return mock_response
 
         settings = SearchSettings(
             provider="brave",
@@ -94,7 +110,7 @@ class TestSearchMocked:
         )
         server = init_server(settings)
 
-        with patch("httpx.AsyncClient", return_value=httpx.AsyncClient(transport=transport)):
+        with patch("curl_cffi.requests.AsyncSession.get", new=mock_get):
             result = await server.call_tool(
                 "websearch",
                 {"query": "test", "mode": "brave_llm_context"},
