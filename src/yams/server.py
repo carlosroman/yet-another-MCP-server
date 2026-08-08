@@ -50,15 +50,12 @@ def init_server(
             read_only_hint=True,
             destructive_hint=False,
             idempotent_hint=True,
-            open_world_hint=False,
+            open_world_hint=True,
         ),
         description=(
-            f"Fetch and parse a web page, returning content in markdown format. "
-            f"Use this to read the full content of web pages found via search or provided by the user. "
-            f"Supports HTML, JSON, XML, and PDF content types. "
-            f"Trafilatura extracts main content from HTML pages, "
-            f"MarkItDown handles PDF conversion. "
-            f"The current year is {current_year}."
+            "Fetch content from an HTTP or HTTPS URL and return it as text, markdown, or HTML. Markdown is the default. "
+            "Use this to read the full content of web pages found via search or provided by the user. "
+            "Supports HTML, JSON, XML, and PDF content types. "
         ))(fetch_fn)
 
     return server
