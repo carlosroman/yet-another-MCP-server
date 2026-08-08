@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from curl_cffi import BrowserTypeLiteral
 from pydantic_settings import BaseSettings
 
 
@@ -9,7 +10,7 @@ class FetchSettings(BaseSettings):
     follow_redirects: bool = True
     user_agent: str = "YAMS/1.0"
     stealthy_headers: bool = False
-    impersonate: str = "chrome"
+    impersonate: BrowserTypeLiteral = "chrome"
 
     model_config = {
         "env_prefix": "YAMS_FETCH_",
