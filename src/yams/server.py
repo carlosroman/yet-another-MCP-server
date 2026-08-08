@@ -9,6 +9,7 @@ from mcp.types import ToolAnnotations
 
 from yams.config.settings import SearchSettings
 from yams.tools.fetch import FetchSettings, create_fetch_tool
+from yams.tools.pdf import create_read_pdf_tool
 from yams.tools.search import create_search_tool
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,23 @@ def init_server(
             "Supports HTML, JSON, XML, and PDF content types. "
         ),
     )(fetch_fn)
+
+    read_pdf_fn = create_read_pdf_tool()
+    server.tool(
+        name="read_pdf",
+        title="Read PDF",
+        annotations=ToolAnnotations(
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+        description=(
+            "Read a local PDF file and convert it to text. "
+            "Accepts file paths or file:// URLs. "
+            "Supports markdown, text, and HTML output formats. Markdown is the default."
+        ),
+    )(read_pdf_fn)
 
     return server
 
