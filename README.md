@@ -82,8 +82,14 @@ Example MCP client configuration:
 {
   "mcpServers": {
     "yams": {
-      "command": "uvx",
-      "args": ["yams"]
+      "type": "local",
+      "command": [
+        "uvx",
+        "--no-cache",
+        "--from",
+        "git+https://github.com/carlosroman/yet-another-MCP-server.git",
+        "yams"
+      ]
     }
   }
 }
